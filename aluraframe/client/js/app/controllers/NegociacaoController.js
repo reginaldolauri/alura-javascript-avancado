@@ -9,21 +9,14 @@ class NegociacaoController{
         
         let self = this;
         
-        this._listaNegociacoes = ProxyFactory.create(
+        this._listaNegociacoes = new Bind(
             new ListaNegociacoes(),
-            ["adiciona", "esvazia"], 
-            model => this._negociacaoView.update(model));
+            new NegociacaoView($('#negociacoesView')),
+            "adiciona", "esvazia");
         
-        this._negociacaoView = new NegociacaoView($('#negociacoesView'));
-        this._negociacaoView.update(this._listaNegociacoes);
-        
-        this._mensagem = ProxyFactory.create(
-            new Mensagem(),
-            ["texto"],
-            model => this._mensagemView.update(model));
-
-        this._mensagemView = new MensagemView($('#mensagemView'));
-        this._mensagemView.update(this._mensagem);
+        this._mensagem = new Bind(
+            new Mensagem(), new MensagemView($('#mensagemView')),
+            'texto');      
     }
 
     apaga(){
@@ -52,5 +45,20 @@ class NegociacaoController{
         this._inputQuantidade.value = 0;
         this._inputValor.value = 0.0;
         this._inputData.focus();
+    }
+
+    importaNegociacoes(){
+        let service = new NegociacaoService();
+
+        service.obterNegociacoesDaSemana((erro, negociacoes) =>{
+            if (erro) {
+                this._mensagem.texto = erro;
+                return;
+            }
+            negociacoes.forEach(negociacao => {
+                this._listaNegociacoes.adiciona(negociacao) 
+             });
+             this._mensagem.texto = 'Negociações importadas com sucesso.';
+        })
     }
 }
