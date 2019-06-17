@@ -12,11 +12,13 @@ class NegociacaoController{
         this._listaNegociacoes = new Bind(
             new ListaNegociacoes(),
             new NegociacaoView($('#negociacoesView')),
-            "adiciona", "esvazia");
+            "adiciona", "esvazia", 'ordena', 'inverteOrdem');
         
         this._mensagem = new Bind(
             new Mensagem(), new MensagemView($('#mensagemView')),
-            'texto');      
+            'texto');
+        
+        this._ordemAtual = '';
     }
 
     apaga(){
@@ -27,9 +29,13 @@ class NegociacaoController{
 
     adiciona(event){
         event.preventDefault()
-        this._listaNegociacoes.adiciona(this._criaNegociacao());
-        this._mensagem.texto = 'Negociação incluída com sucesso.'
-        this._limpaFormulario();
+        try {
+            this._listaNegociacoes.adiciona(this._criaNegociacao());
+            this._mensagem.texto = 'Negociação incluída com sucesso.'
+            this._limpaFormulario();
+        } catch (erro) {
+            this._mensagem.texto = erro;
+        }
     }
 
     _criaNegociacao(){
@@ -57,5 +63,12 @@ class NegociacaoController{
                 .catch(erro => this._mensagem.texto = erro);
     }
     
-    
+    ordena(coluna){
+        if (this._ordemAtual == coluna) {
+            this._listaNegociacoes.inverteOrdem();
+        } else {
+            this._listaNegociacoes.ordena((a,b) => a[coluna] - b[coluna]);
+        }
+        this._ordemAtual = coluna;
+    }
 }
