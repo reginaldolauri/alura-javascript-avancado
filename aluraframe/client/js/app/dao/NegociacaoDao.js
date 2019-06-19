@@ -58,15 +58,17 @@ class NegociacaoDao {
 
     apagaTodos(){
         return new Promise((resolve, reject) => {
-            let cursor = this._connection
+            let request = this._connection
                 .transaction([this._store], 'readwrite')
                 .objectStore(this._store)
                 .clear();
-            request.onsuccess = e => resolve('Negociações apagadas com sucesso.');
+            request.onsuccess = e => {
+                resolve('Negociações apagadas com sucesso.');
+            }
 
             request.onerror = e => {
                 console.log(e.target.error)
-                resolve('Não foi possível apagar as negociações.');
+                reject('Não foi possível apagar as negociações.');
             }
             
         });
